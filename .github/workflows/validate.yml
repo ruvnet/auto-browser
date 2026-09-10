@@ -20,7 +20,7 @@ jobs:
       - run: npm test
       - run: npm audit --audit-level=moderate
       - run: npm run benchmark > benchmark.json
-      - run: tar -czf release.tgz src package.json package-lock.json README.md docs
+      - run: tar -czf release.tgz src test package.json package-lock.json README.md docs
       - uses: actions/upload-artifact@v4
         with:
           name: validated-package
