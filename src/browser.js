@@ -1,0 +1,8 @@
+import {Worker} from 'node:worker_threads';import {chromium} from 'playwright';import {createHash} from 'node:crypto';import {validateURL} from './fetch-worker.js';
+export async function fetchSnapshot(url,origins){validateURL(url,origins);return new Promise((resolve,reject)=>{const worker=new Worker(new URL('./fetch-worker.js',import.meta.url),{workerData:{url,origins}});const timeout=setTimeout(()=>{worker.terminate();reject(Error('Fetch deadline'));},10000);worker.once('message',message=>{clearTimeout(timeout);worker.terminate();message.error?reject(Error(message.error)):resolve(message.html);});worker.once('error',()=>{clearTimeout(timeout);worker.terminate();reject(Error('Fetch failed'));});});}
+export async function extract(html,{executablePath,unsandboxed=false}={}){
+ if(typeof html!=='string'||Buffer.byteLength(html)>1048576)throw Error('HTML too large');
+ const browser=await chromium.launch({headless:true,chromiumSandbox:!unsandboxed,executablePath,timeout:10000});
+ const timer=setTimeout(()=>browser.close(),10000);
+ try{const context=await browser.newContext({javaScriptEnabled:false,serviceWorkers:'block',acceptDownloads:false});await context.route('**/*',route=>route.abort());const page=await context.newPage();await page.setContent(html,{waitUntil:'domcontentloaded',timeout:3000});const title=(await page.title()).slice(0,512);const text=(await page.locator('body').innerText({timeout:3000})).slice(0,65536);return {title,text,sha256:createHash('sha256').update(html).digest('hex'),scripts:false,network:false,sandbox:!unsandboxed};}finally{clearTimeout(timer);await browser.close();}
+}

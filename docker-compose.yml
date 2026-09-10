@@ -1,35 +1,11 @@
-version: '3.8'
-
 services:
-  auto-browser:
+  browser:
     build: .
-    volumes:
-      - ./output:/app/output
-      - ./.env:/app/.env
+    init: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    read_only: true
+    tmpfs: [/tmp]
     environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - BROWSER_HEADLESS=true
-      - LLM_MODEL=${LLM_MODEL:-gpt-4o-mini}
-    # Example command - override with your own command when running
-    command: >
-      auto-browser easy -v "https://www.google.com/finance" "Get AAPL stock price"
-
-# Usage examples as comments:
-
-# 1. Basic usage:
-#    OPENAI_API_KEY=your_key docker-compose up
-#
-# 2. Override command:
-#    OPENAI_API_KEY=your_key docker-compose run --rm auto-browser \
-#      auto-browser easy "https://example.com" "Extract data"
-#
-# 3. Interactive mode:
-#    OPENAI_API_KEY=your_key docker-compose run --rm auto-browser \
-#      auto-browser easy --interactive "https://example.com" "Fill out form"
-#
-# 4. With custom model:
-#    OPENAI_API_KEY=your_key LLM_MODEL=gpt-4 docker-compose up
-#
-# 5. Run specific demo:
-#    OPENAI_API_KEY=your_key docker-compose run --rm auto-browser \
-#      ./demos/07_timesheet_automation.sh
+      BROWSER_ORIGINS: "https://example.com"
+    command: [status]
