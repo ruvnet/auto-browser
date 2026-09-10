@@ -1,325 +1,41 @@
-# Auto-Browser
+![Auto Browser](docs/assets/header.svg)
+# Auto Browser v2
 
-Auto-Browser is an AI-powered web automation tool that makes complex web interactions simple through natural language commands. It combines the power of LLMs with browser automation to enable sophisticated multi-step workflows and data extraction.
+Read explicitly allowed public websites as inert text. The v2 snapshot workflow separates network fetching from a browser with scripts and networking disabled. It does not log in, submit forms or act on page instructions.
 
-Created by rUv (cause he could)
+## Capabilities
 
+| Capability | Behavior |
+| :--- | :--- |
+| Fetch | HTTPS allowlist, public IPv4 only, pinned DNS, no redirects |
+| Extract | Sandboxed Chromium, scripts disabled, requests blocked |
+| Limits | 1 MiB HTML, 10 second fetch, one MCP snapshot at a time |
 
-## Features
+| CLI | status, test, benchmark, mcp |
+| MCP | Project status, domain tool, policy resource |
+| MetaHarness | Generated repo maintainer profiles and host integrations |
 
-- 🤖 **Natural Language Control**: Describe what you want to do in plain English
-- 🎯 **Smart Element Detection**: Automatically finds the right elements to interact with
-- 📊 **Structured Data Extraction**: Extracts data in clean, organized formats
-- 🔄 **Interactive Mode**: Supports form filling, clicking, and complex interactions
-- 📝 **Report Generation**: Creates well-formatted markdown reports
-- 🎨 **Template System**: Save and reuse site-specific configurations
-- 🚀 **Easy to Use**: Simple CLI interface with verbose output option
+## Install and use
 
-## Introduction to Multi-Step Browser Automation
+Node 22 or newer:
 
-Auto-Browser revolutionizes web automation by allowing you to describe complex workflows in plain English. Instead of writing detailed scripts or learning complex APIs, you can simply describe what you want to accomplish:
-
-```bash
-# Multi-step workflow example
-auto-browser easy --interactive "https://workday.com" "Login with username $USER_EMAIL, go to time sheet, enter 8 hours for today under project 'Development', add comment 'Sprint tasks', and submit for approval"
+```sh
+npm ci --ignore-scripts
+npx playwright install chromium
+BROWSER_ORIGINS=https://example.com node src/cli.js snapshot https://example.com
+npm test
+npm run benchmark
+npm run mcp
 ```
 
-### Key Concepts
+MCP uses stdio. Configure the host to run `node src/cli.js mcp` with this repository as its working directory. Only the operator configures corpus paths or origin permissions. Tool callers cannot execute shell commands or supply local paths. Returned content is untrusted data.
 
-1. **Natural Language Control**
-   - Describe actions in plain English
-   - AI understands context and intent
-   - Handles complex multi-step flows
+## Validation and release
 
-2. **Smart Navigation**
-   - Automatic element detection
-   - Context-aware interactions
-   - Dynamic content handling
+CI runs regression tests, real SDK stdio tests and dependency audit. Benchmark output reports fixture performance only. Release artifacts require the same checks. See [architecture and security](docs/adr/0001-supported-v2.md). Historical functionality is described in [the archived README](docs/historical-readme.md); it is outside the supported v2 surface.
 
-3. **State Management**
-   - Maintains session context
-   - Handles authentication flows
-   - Manages multi-page interactions
+## Related projects
 
-4. **Template System**
-   - Reusable site configurations
-   - Custom selectors and actions
-   - Workflow templates
+[RuFlo](https://github.com/ruvnet/ruflo) coordinates agents. [MetaHarness](https://github.com/ruvnet/metaharness) supplies host profiles and evaluations. [Autogenous](https://github.com/ruvnet/autogenous) provides governed improvement primitives. [RuVector](https://github.com/ruvnet/ruvector) supplies vector search primitives. [Federation](https://x.ruv.io/mcp) is a separate authenticated coordination service. No federation enrollment or publishing is performed by this package.
 
-## Installation
-
-## Installation
-
-### Docker Installation (Recommended)
-
-#### Using Docker Compose (Easiest)
-```bash
-# Clone repository
-git clone https://github.com/ruvnet/auto-browser.git
-cd auto-browser
-
-# Set up environment
-cp .env.example .env
-# Edit .env and add your OPENAI_API_KEY
-
-# Run with default example
-docker-compose up
-
-# Run custom command
-docker-compose run --rm auto-browser \
-  auto-browser easy "https://example.com" "Extract data"
-
-# Run interactive mode
-docker-compose run --rm auto-browser \
-  auto-browser easy --interactive "https://example.com" "Fill out form"
-
-# Run with custom model
-LLM_MODEL=gpt-4 docker-compose up
-
-# Run specific demo
-docker-compose run --rm auto-browser \
-  ./demos/07_timesheet_automation.sh
-```
-
-#### Using Docker Directly
-```bash
-# Build Docker image
-docker build -t auto-browser .
-
-# Run basic example
-docker run -e OPENAI_API_KEY=your_key auto-browser \
-  auto-browser easy "https://www.google.com/finance" "Get AAPL stock price"
-
-# Run with output volume
-docker run -v $(pwd)/output:/app/output -e OPENAI_API_KEY=your_key auto-browser \
-  auto-browser easy -v "https://www.google.com/finance" "Get AAPL stock price"
-
-# Run interactive mode
-docker run -e OPENAI_API_KEY=your_key auto-browser \
-  auto-browser easy --interactive "https://example.com" "Fill out contact form"
-```
-
-### Quick Install (Linux/macOS)
-
-```bash
-# Download and run install script
-curl -sSL https://raw.githubusercontent.com/ruvnet/auto-browser/main/install.sh | bash
-```
-
-### Manual Installation
-
-1. **System Requirements**
-```bash
-# Install Node.js (if not present)
-curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-sudo apt-get install -y nodejs
-
-# Install Playwright system dependencies
-npx playwright install-deps
-```
-
-2. **Clone and Setup**
-```bash
-# Clone repository
-git clone https://github.com/ruvnet/auto-browser.git
-cd auto-browser
-
-# Install Python package
-pip install -e .
-
-# Install Playwright browsers
-playwright install
-
-# Set up environment
-cp .env.example .env
-# Edit .env and add your OPENAI_API_KEY
-```
-
-## Docker Usage Examples
-
-### Basic Operations
-```bash
-# Run with specific URL
-docker-compose run --rm auto-browser \
-  auto-browser easy "https://example.com" "Extract main content"
-
-# Run with verbose output
-docker-compose run --rm auto-browser \
-  auto-browser easy -v "https://example.com" "Extract data"
-
-# Run with report generation
-docker-compose run --rm auto-browser \
-  auto-browser easy -v -r "https://example.com" "Generate report"
-```
-
-### Advanced Workflows
-```bash
-# Run timesheet automation
-docker-compose run --rm auto-browser \
-  auto-browser easy --interactive "https://workday.com" \
-  "Fill timesheet for this week"
-
-# Run social media campaign
-docker-compose run --rm auto-browser \
-  auto-browser easy --interactive "https://buffer.com" \
-  "Create and schedule posts"
-
-# Run research workflow
-docker-compose run --rm auto-browser \
-  auto-browser easy -v -r "https://scholar.google.com" \
-  "Research LLM papers"
-```
-
-### Template Management
-```bash
-# Create template
-docker-compose run --rm auto-browser \
-  auto-browser create-template "https://example.com" \
-  --name example --description "Example template"
-
-# List templates
-docker-compose run --rm auto-browser \
-  auto-browser list-sites
-
-# Use template
-docker-compose run --rm auto-browser \
-  auto-browser easy --site example "https://example.com" \
-  "Extract data"
-```
-
-
-### Installation Notes
-
-#### Docker Installation (Recommended)
-- Easiest setup with all dependencies included
-- Docker Compose provides simple management
-- Environment variables handled automatically
-- Output directory mounted automatically
-- Supports all features and demos
-- Cross-platform compatibility
-
-#### Manual Installation
-- Requires Python 3.8 or higher
-- Node.js LTS version recommended
-- System dependencies handled by install script
-- Playwright browsers installed automatically
-- Package manager locks handled gracefully
-
-## Advanced Workflow Examples
-
-### 1. Time Management
-```bash
-# Complete timesheet workflow
-auto-browser easy --interactive "https://workday.com" "Fill out timesheet for the week:
-- Monday: 8h Development
-- Tuesday: 6h Development, 2h Meetings
-- Wednesday: 7h Development, 1h Documentation
-Then submit for approval"
-```
-
-### 2. Social Media Management
-```bash
-# Cross-platform posting
-auto-browser easy --interactive "https://buffer.com" "Create posts about auto-browser:
-1. Twitter: Announce new release
-2. LinkedIn: Technical deep-dive
-3. Schedule both for optimal times"
-```
-
-### 3. Research Automation
-```bash
-# Academic research workflow
-auto-browser easy -v -r "https://scholar.google.com" "Find papers about LLM automation:
-1. Get top 10 most cited
-2. Extract methodologies
-3. Download PDFs
-4. Create bibliography"
-```
-
-### 4. Project Setup
-```bash
-# Complete project initialization
-auto-browser easy --interactive "https://github.com" "Create new project:
-1. Initialize repository
-2. Set up CI/CD
-3. Configure team access
-4. Create documentation"
-```
-
-## Demo Workflows
-
-Auto-Browser includes comprehensive demos showcasing various automation capabilities:
-
-### Basic Demos
-1. **Basic Setup**: Simple data extraction and templates
-2. **Simple Search**: Search functionality and data parsing
-3. **Multi-Tab**: Working with multiple pages
-4. **Form Interaction**: Form filling and validation
-5. **Parallel Tasks**: Complex data extraction
-6. **Clinical Trials**: Specialized data extraction
-
-### Advanced Workflows
-7. **Timesheet Automation**: Complete timesheet management
-8. **Social Media Campaign**: Multi-platform content management
-9. **Research Workflow**: Academic research automation
-10. **Project Management**: Project setup and coordination
-
-Try the demos:
-```bash
-# Make demos executable
-chmod +x demos/*.sh
-
-# Run specific demo
-./demos/07_timesheet_automation.sh
-```
-
-## Configuration
-
-### Environment Variables
-
-- `OPENAI_API_KEY`: Your OpenAI API key (required)
-- `LLM_MODEL`: Model to use (default: gpt-4o-mini)
-- `BROWSER_HEADLESS`: Run browser in headless mode (default: true)
-
-### Template Configuration
-
-Templates are stored in YAML format:
-```yaml
-sites:
-  finance:
-    name: finance
-    description: Extract stock information
-    url_pattern: https://www.google.com/finance
-    selectors:
-      stock_price:
-        css: .YMlKec.fxKbKc
-        description: Current stock price
-```
-
-## Output Files
-
-Results are saved with unique filenames including:
-- Domain (e.g., google_com)
-- Path (e.g., finance)
-- Timestamp (YYYYMMDD_HHMMSS)
-- .md extension
-
-Example: `google_com_finance_20240120_123456.md`
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Author
-
-Created by rUv (cause he could)
-
-Repository: [https://github.com/ruvnet/auto-browser](https://github.com/ruvnet/auto-browser)
-
+MCP `project_validate` and `project_benchmark` require operator environment `RUV_ALLOW_VALIDATION=1`. They launch only fixed commands, with a single process slot, 60 second deadline and 128 KiB output cap. Test sandbox overrides and provider secrets are not forwarded. Receipts are unsigned content hashes, not trusted attestations. Extraction has a hard 15 second process group deadline, including browser descendants.

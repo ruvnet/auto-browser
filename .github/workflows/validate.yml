@@ -1,0 +1,29 @@
+name: Validate and package
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - run: npm test
+      - run: npm audit --audit-level=moderate
+      - run: npm run benchmark > benchmark.json
+      - run: tar -czf release.tgz src test package.json package-lock.json README.md docs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: validated-package
+          path: |
+            release.tgz
+            benchmark.json

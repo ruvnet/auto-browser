@@ -1,0 +1,1 @@
+{"name":"auto-browser","version":"2.0.0","private":true,"type":"module","scripts":{"test":"node --test","benchmark":"node src/cli.js benchmark","mcp":"node src/cli.js mcp"},"dependencies":{"@modelcontextprotocol/sdk":"1.30.0","zod":"3.25.76","playwright":"1.63.0","ipaddr.js":"2.2.0"},"engines":{"node":">=22"}}

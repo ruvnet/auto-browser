@@ -1,0 +1,9 @@
+{
+  "entrypoint": "src/cli.js",
+  "commands": [
+    "status",
+    "test",
+    "benchmark",
+    "mcp"
+  ]
+}
