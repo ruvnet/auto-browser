@@ -37,3 +37,5 @@ CI runs regression tests, real SDK stdio tests and dependency audit. Benchmark o
 ## Related projects
 
 [RuFlo](https://github.com/ruvnet/ruflo) coordinates agents. [MetaHarness](https://github.com/ruvnet/metaharness) supplies host profiles and evaluations. [Autogenous](https://github.com/ruvnet/autogenous) provides governed improvement primitives. [RuVector](https://github.com/ruvnet/ruvector) supplies vector search primitives. [Federation](https://x.ruv.io/mcp) is a separate authenticated coordination service. No federation enrollment or publishing is performed by this package.
+
+MCP `project_validate` and `project_benchmark` require operator environment `RUV_ALLOW_VALIDATION=1`. They launch only fixed commands, with a single process slot, 60 second deadline and 128 KiB output cap. Test sandbox overrides and provider secrets are not forwarded. Receipts are unsigned content hashes, not trusted attestations. Extraction has a hard 15 second process group deadline, including browser descendants.
